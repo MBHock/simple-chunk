@@ -1,4 +1,4 @@
-package de.ba.egov.batch.processing;
+package de.hock.batch.processing;
 
 import java.io.File;
 import java.io.IOException;
