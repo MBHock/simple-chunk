@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019 Bundesagentur fuer Arbeit. All Rights Reserved.
- *
- */
 package de.ba.egov.batch.processing;
 
 import javax.batch.api.chunk.ItemProcessor;
@@ -9,7 +5,7 @@ import javax.batch.api.chunk.ItemProcessor;
 /**
  *
  *
- * @author <a href="mailto:Mojammal.Hock2@arbeitsagentur.de">Mojammal Hock</a>
+ * @author <a href="mailto:Mojammal.Hock@gmail.com">Mojammal Hock</a>
  */
 public class SimpleFileProcessor implements ItemProcessor {
 
