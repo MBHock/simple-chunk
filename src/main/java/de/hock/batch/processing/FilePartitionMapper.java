@@ -1,5 +1,11 @@
 package de.hock.batch.processing;
 
+import javax.annotation.PostConstruct;
+import javax.batch.api.partition.PartitionMapper;
+import javax.batch.api.partition.PartitionPlan;
+import javax.batch.api.partition.PartitionPlanImpl;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,61 +15,56 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import javax.batch.api.BatchProperty;
-import javax.batch.api.partition.PartitionMapper;
-import javax.batch.api.partition.PartitionPlan;
-import javax.batch.api.partition.PartitionPlanImpl;
-import javax.inject.Inject;
-
+@Named("FilePartitionMapper")
 public class FilePartitionMapper implements PartitionMapper {
 
-	@Inject
-	@BatchProperty(name = "filenamePattern")
-	private String filenamePattern;
+    private String filenamePattern;
+    private String inputDirectory;
+    private Integer numberOfPartitions;
+    private static final String PROPERTY_FILENAME = "fileName";
 
-	@Inject
-	@BatchProperty(name = "inputDirectory")
-	private String inputDirectory;
+    @Inject
+    private JobAndStepPropertyReader jobAndStepPropertyReader;
 
-	@Inject
-	@BatchProperty(name = "numberOfThreads")
-	private Integer threadCount;
+    @PostConstruct
+    void initPorperties() {
+        filenamePattern = jobAndStepPropertyReader.getProperty("filenamePattern");
+        inputDirectory = jobAndStepPropertyReader.getProperty("inputDirectory");
+        numberOfPartitions = jobAndStepPropertyReader.getPropertyAsInteger("numberOfThreads");
+    }
 
-	private static final String PROPERTY_FILENAME = "fileName";
+    @Override
+    public PartitionPlan mapPartitions() throws Exception {
+        PartitionPlan partitionPlan = new PartitionPlanImpl();
 
-	@Override
-	public PartitionPlan mapPartitions() throws Exception {
-		return createPartitionPlan(getFileList());
+        List<File> files = getFileList();
+        partitionPlan.setThreads(numberOfPartitions);
+        partitionPlan.setPartitions(files.size());
+        partitionPlan.setPartitionProperties(createPartitionProperties(files));
 
-	}
+        return partitionPlan;
+    }
 
-	private List<File> getFileList() throws IOException {
+    private List<File> getFileList() throws IOException {
 
-		return Files.list(Paths.get(inputDirectory)).map(Path::toFile).filter(File::isFile)
-				.filter(file -> file.getName().matches(filenamePattern))
-				.collect(Collectors.toList());
+        Path path = Paths.get(inputDirectory);
+        return Files.list(path).peek(System.out::println).map(Path::toFile).collect(Collectors.toList());
+//        return Files.list(Paths.get(inputDirectory)).map(Path::toFile).filter(File::isFile)
+//                .collect(Collectors.toList());
 
-	}
+    }
 
-	private PartitionPlan createPartitionPlan(List<File> files) {
+    private Properties[] createPartitionProperties(List<File> files) {
+        Properties[] partitionProperties = new Properties[files.size()];
 
-		PartitionPlan partitionPlan = new PartitionPlanImpl();
+        for(int indexPartition = 0; indexPartition < files.size(); indexPartition++) {
+            Properties properties = new Properties();
+            properties.setProperty(PROPERTY_FILENAME,
+                    files.get(indexPartition).getPath());
+            partitionProperties[indexPartition] = properties;
+        }
 
-		partitionPlan.setThreads(threadCount);
+        return partitionProperties;
+    }
 
-		int partitionen = files.size();
-		partitionPlan.setPartitions(partitionen);
-
-		Properties[] partitionProperties = new Properties[partitionen];
-		partitionPlan.setPartitionProperties(partitionProperties);
-
-		for (int indexPartition = 0; indexPartition < partitionen; indexPartition++) {
-			Properties properties = new Properties();
-			properties.setProperty(PROPERTY_FILENAME,
-					files.get(indexPartition).getPath());
-			partitionProperties[indexPartition] = properties;
-		}
-
-		return partitionPlan;
-	}
 }
