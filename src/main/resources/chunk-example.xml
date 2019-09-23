@@ -7,7 +7,10 @@
         <property name="numberOfThreads" value="10"/>
         <property name="filenamePattern" value="txt"/>
     </properties>
-    <step id="chunkReader">
+    <listeners>
+        <listener ref="InfoJobListener"/>
+    </listeners>
+    <step id="chunkReader" next="statistics">
         <chunk item-count="100">
             <reader ref="SimpleFileReader">
                 <properties>
@@ -21,5 +24,8 @@
         <partition>
             <mapper ref="FilePartitionMapper"/>
         </partition>
+    </step>
+    <step id="statistics">
+        <batchlet ref="StatisticsBatchlet"/>
     </step>
 </job>
