@@ -3,7 +3,6 @@ package de.hock.batch.processing;
 import javax.batch.api.chunk.ItemWriter;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.BufferedWriter;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,8 +16,6 @@ import java.util.stream.Collectors;
  */
 @Named("SimpleFileWriter")
 public class SimpleFileWriter implements ItemWriter {
-
-    private BufferedWriter bufferedWriter;
 
     @Inject
     private JobProperties jobProperties;
@@ -44,8 +41,7 @@ public class SimpleFileWriter implements ItemWriter {
      */
     @Override
     public void close() throws Exception {
-        //do nothing
-
+//        do nothing
 //        Path path = Paths.get(jobProperties.getOutputDirectory(), jobProperties.getOutputFilename());
 //        logger.log(Level.INFO, "Closing the file writer to file {0}", path);
 //
@@ -61,8 +57,7 @@ public class SimpleFileWriter implements ItemWriter {
     public void writeItems(List<Object> items) throws Exception {
         logger.log(Level.FINE, "{0} number of items will be written", items.size());
         String lines = items.stream().map(String::valueOf).collect(Collectors.joining(System.lineSeparator()));
-        asychronousWriter.write(lines);
-        asychronousWriter.write(System.lineSeparator());
+        asychronousWriter.write(lines.concat(System.lineSeparator()));
     }
 
     /* (non-Javadoc)
