@@ -3,6 +3,7 @@ package de.hock.batch.processing;
 import javax.batch.api.chunk.ItemProcessor;
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,6 +13,7 @@ import java.util.logging.Logger;
 @Named("SimpleFileProcessor")
 public class SimpleFileProcessor implements ItemProcessor {
 
+    public static final String EMPTY_STRING = "";
     @Inject
     private Logger logger;
 
@@ -23,9 +25,10 @@ public class SimpleFileProcessor implements ItemProcessor {
         String response = null;
 
         String itemToBeProcesssed = (String) item;
-        if(!"".equals(itemToBeProcesssed)) {
-            response = "We prcssed the object [" + item + "]";
-            logger.log(Level.FINE, "Process: " + response);
+        logger.log(Level.FINER, "Processing item {0}.", itemToBeProcesssed);
+
+        if(!Objects.equals(EMPTY_STRING, itemToBeProcesssed)) {
+            response = itemToBeProcesssed;
         }
 
         return response;

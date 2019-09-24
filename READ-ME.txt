@@ -1,0 +1,19 @@
+To run the batch, just execute the following command:
+
+  mvn clean install exec:java -Dexec.arguments="chunk-example"
+  or
+  mvn exec:java -Dexec.arguments="chunk-example"
+     
+	  where as "chunk-example" is the name of job XML, which lies in the class path.
+
+To supply additional parameters in the batch execution, the command should be as follows:
+mvn exec:java -Dexec.arguments="chunk-example jobParam1=x jobParam2=y jobParam3=z"
+
+By using java only:
+java -jar target/chunk-processing.jar chunk-example
+
+Using command line argument:
+java -jar target/chunk-processing.jar chunk-example threadCount=5 outputFilename=sample-chunkout.txt
+
+To run in debug mode: (the debug mode must be configured as a remote debugger in your IDE)
+java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000 -jar target/chunk-processing.jar chunk-example threadCount=5 outputFilename=sample-chunkout.txt

@@ -1,6 +1,9 @@
 package de.hock.batch.processing;
 
+import org.jberet.creation.ArchiveXmlLoader;
+import org.jberet.job.model.Job;
 import org.jberet.runtime.JobExecutionImpl;
+import org.jberet.se.BatchSEEnvironment;
 import org.jberet.se._private.SEBatchLogger;
 import org.jberet.se._private.SEBatchMessages;
 
@@ -10,8 +13,9 @@ import javax.batch.runtime.BatchRuntime;
 import javax.batch.runtime.BatchStatus;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.Period;
-import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -23,43 +27,76 @@ public class JobStarter {
      * @param args
      * @throws InterruptedException
      */
-
     public static void main(final String[] args) throws BatchRuntimeException {
+        System.out.println(Arrays.deepToString(args));
+
         Instant jobStart = Instant.now();
 
-        final java.util.Properties jobParameters = new java.util.Properties();
-        for(int i = 1; i < args.length; i++) {
-            final int equalSignPos = args[i].indexOf('=');
-            if(equalSignPos <= 0) {
-                usage(args);
-                return;
+        final String jobXML = readJobXmlFilename(args);
+        if(jobXML != null) {
+            final Properties jobParameters = readPropertiesFromJobXml(jobXML);
+
+            if(addValidArgumentToProps(args, jobParameters)) {
+                startJob(jobXML, BatchRuntime.getJobOperator(), jobParameters);
             }
-            final String key = args[i].substring(0, equalSignPos).trim();
-            final String val = args[i].substring(equalSignPos + 1).trim();
-            System.out.println(String.format("prop: '%s' -> '%s'", key, val));
-            jobParameters.setProperty(key, val);
         }
 
-        final JobOperator jobOperator = BatchRuntime.getJobOperator();
-        final long jobExecutionId;
+        Duration between = Duration.between(jobStart, Instant.now());
+        System.out.println(String.format("Total job execution time: %s", between));
+        // System.out.println(String.format("Total job execution time: %d:%d:%d.%d", between.get(ChronoUnit.HOURS), between.get(ChronoUnit.MINUTES), between.getSeconds(), between.get(ChronoUnit.MILLIS)));
+    }
+
+    private static void startJob(String jobXML, JobOperator jobOperator, Properties jobParameters) {
         try {
-            jobExecutionId = jobOperator.start("chunk-example", jobParameters);
+            final long jobExecutionId = jobOperator.start(jobXML, jobParameters);
+
             final JobExecutionImpl jobExecution = (JobExecutionImpl) jobOperator.getJobExecution(jobExecutionId);
             jobExecution.awaitTermination(0, TimeUnit.SECONDS);  //no timeout
 
             if(!jobExecution.getBatchStatus().equals(BatchStatus.COMPLETED)) {
-                throw SEBatchMessages.MESSAGES.jobDidNotComplete("chunk-example",
+                throw SEBatchMessages.MESSAGES.jobDidNotComplete(jobXML,
                         jobExecution.getBatchStatus(), jobExecution.getExitStatus());
             }
         }
         catch(InterruptedException e) {
             throw new BatchRuntimeException(e);
         }
-        Instant jobEnd = Instant.now();
+    }
 
-        Duration between = Duration.between(jobStart, jobEnd);
-       // System.out.println(String.format("Total job execution time: %d:%d:%d.%d", between.get(ChronoUnit.HOURS), between.get(ChronoUnit.MINUTES), between.getSeconds(), between.get(ChronoUnit.MILLIS)));
-        System.out.println(String.format("Total job execution time: %s", between));
+    private static boolean addValidArgumentToProps(String[] args, Properties jobParameters) {
+        for(int i = 1; i < args.length; i++) {
+            final int equalSignPos = args[i].indexOf('=');
+            if(equalSignPos <= 0) {
+                usage(args);
+                return false;
+            }
+            final String key = args[i].substring(0, equalSignPos).trim();
+            final String val = args[i].substring(equalSignPos + 1).trim();
+            System.out.println(String.format("prop: '%s' -> '%s'", key, val));
+            jobParameters.setProperty(key, val);
+        }
+        return true;
+    }
+
+    private static Properties readPropertiesFromJobXml(String jobXML) {
+        BatchSEEnvironment batchEnvironment = new BatchSEEnvironment();
+        final Job jobDefined = ArchiveXmlLoader.loadJobXml(jobXML, batchEnvironment.getClassLoader(),
+                new ArrayList<Job>(), batchEnvironment.getJobXmlResolver());
+
+        return org.jberet.job.model.Properties.toJavaUtilProperties(jobDefined.getProperties());
+    }
+
+    private static String readJobXmlFilename(String[] args) {
+
+        String jobXmlFilename = null;
+        if(args.length == 0 || args[0] == null || args[0].isEmpty()) {
+            usage(args);
+        }
+        else {
+            jobXmlFilename = args[0];
+        }
+
+        return jobXmlFilename;
     }
 
     private static void usage(final String[] args) {

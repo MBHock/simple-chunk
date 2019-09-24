@@ -4,13 +4,15 @@
     <properties>
         <property name="inputDirectory" value="/Users/mojammalhock/tmp/out"/>
         <property name="outputDirectory" value="/Users/mojammalhock/tmp"/>
-        <property name="numberOfThreads" value="10"/>
+        <property name="loggingDirectory" value="/Users/mojammalhock/tmp/log"/>
+        <property name="outputFilename" value="chunk-output.txt"/>
+        <property name="threadCount" value="10"/>
         <property name="filenamePattern" value="txt"/>
     </properties>
     <listeners>
         <listener ref="InfoJobListener"/>
     </listeners>
-    <step id="chunkReader" next="statistics">
+    <step id="chunkReader" next="cleanup">
         <chunk item-count="100">
             <reader ref="SimpleFileReader">
                 <properties>
@@ -24,6 +26,9 @@
         <partition>
             <mapper ref="FilePartitionMapper"/>
         </partition>
+    </step>
+    <step id="cleanup" next="statistics">
+        <batchlet ref="CleanupBatchlet"/>
     </step>
     <step id="statistics">
         <batchlet ref="StatisticsBatchlet"/>

@@ -4,14 +4,13 @@ import javax.batch.api.chunk.ItemWriter;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.Serializable;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:Mojammal.Hock@gmail.com">Mojammal Hock</a>
@@ -19,25 +18,25 @@ import java.util.logging.Logger;
 @Named("SimpleFileWriter")
 public class SimpleFileWriter implements ItemWriter {
 
-    private static final String filename = "/Users/mojammalhock/tmp/test-chunk-sampledata.txt";
     private BufferedWriter bufferedWriter;
 
     @Inject
-    private JobAndStepPropertyReader jobAndStepPropertyReader;
+    private JobProperties jobProperties;
 
     @Inject
     private Logger logger;
+
+    @Inject
+    private AsychronousWriter asychronousWriter;
 
     /* (non-Javadoc)
      * @see javax.batch.api.chunk.ItemWriter#open(java.io.Serializable)
      */
     @Override
     public void open(Serializable checkpoint) throws Exception {
-        String outputDirectory = jobAndStepPropertyReader.getProperty("outputDirectory");
-        Path path = Paths.get(outputDirectory, "chunk_write_result.txt");
-        logger.log(Level.INFO, "Opening file {0} to write", path);
-
-        bufferedWriter = Files.newBufferedWriter(path);
+        Path path = Paths.get(jobProperties.getOutputDirectory(), jobProperties.getOutputFilename());
+        asychronousWriter.open(path);
+        logger.log(Level.INFO, "Opening the file {0} to write output.", path);
     }
 
     /* (non-Javadoc)
@@ -45,11 +44,14 @@ public class SimpleFileWriter implements ItemWriter {
      */
     @Override
     public void close() throws Exception {
-        logger.log(Level.INFO, "Closing the bufferedwriter");
+        //do nothing
 
-        if(bufferedWriter != null) {
-            bufferedWriter.close();
-        }
+//        Path path = Paths.get(jobProperties.getOutputDirectory(), jobProperties.getOutputFilename());
+//        logger.log(Level.INFO, "Closing the file writer to file {0}", path);
+//
+//        if(bufferedWriter != null) {
+//            bufferedWriter.close();
+//        }
     }
 
     /* (non-Javadoc)
@@ -57,17 +59,10 @@ public class SimpleFileWriter implements ItemWriter {
      */
     @Override
     public void writeItems(List<Object> items) throws Exception {
-        logger.log(Level.INFO, "{0} number of items will be written", items.size());
-
-        items.forEach(line -> {
-            try {
-                bufferedWriter.write(String.valueOf(line));
-                bufferedWriter.newLine();
-            }
-            catch(IOException e) {
-                System.out.println(e.getCause());
-            }
-        });
+        logger.log(Level.FINE, "{0} number of items will be written", items.size());
+        String lines = items.stream().map(String::valueOf).collect(Collectors.joining(System.lineSeparator()));
+        asychronousWriter.write(lines);
+        asychronousWriter.write(System.lineSeparator());
     }
 
     /* (non-Javadoc)

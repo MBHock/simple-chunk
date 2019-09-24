@@ -12,6 +12,8 @@ import javax.batch.api.BatchProperty;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 
+import static de.hock.batch.processing.JobProperties.LOGGING_DIRECTORY;
+
 /**
  *
  *
@@ -21,7 +23,8 @@ public class LoggerProducer {
 
 	public static final String LOGGING_PROPERTIES = "logging.properties";
 
-	@BatchProperty(name = "logDirectory")
+
+	@BatchProperty(name = LOGGING_DIRECTORY)
 	private String logDirecotry;
 
 	@PostConstruct
