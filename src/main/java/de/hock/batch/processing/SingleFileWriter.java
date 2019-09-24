@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 /**
  * @author <a href="mailto:Mojammal.Hock@gmail.com">Mojammal Hock</a>
  */
-@Named("SimpleFileWriter")
-public class SimpleFileWriter implements ItemWriter {
+@Named("SingleFileWriter")
+public class SingleFileWriter implements ItemWriter {
 
     @Inject
     private JobProperties jobProperties;
