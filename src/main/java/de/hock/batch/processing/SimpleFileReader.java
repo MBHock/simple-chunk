@@ -16,6 +16,7 @@ import static de.hock.batch.processing.JobProperties.PARTITION_FILENAME;
  * @author <a href="mailto:Mojammal.Hock@gmail.com">Mojammal Hock</a>
  */
 @Tracing
+@TracingLevel
 @Named("SimpleFileReader")
 public class SimpleFileReader implements ItemReader {
 
@@ -33,7 +34,6 @@ public class SimpleFileReader implements ItemReader {
      */
     @Override
     public void open(Serializable checkpoint) throws Exception {
-//        reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(fileNmae))));
         bufferedReader = Files.newBufferedReader(Paths.get(fileName));
     }
 
@@ -50,6 +50,7 @@ public class SimpleFileReader implements ItemReader {
     /* (non-Javadoc)
      * @see javax.batch.api.chunk.ItemReader#readItem()
      */
+    @TracingLevel(level = "FINEST")
     @Override
     public Object readItem() throws Exception {
         String s = bufferedReader.readLine();

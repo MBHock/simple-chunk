@@ -12,8 +12,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static de.hock.batch.processing.JobProperties.PARTITION_FILENAME;
@@ -24,10 +22,8 @@ public class FilePartitionMapper implements PartitionMapper {
     @Inject
     private JobProperties jobProperties;
 
-    @Inject
-    private Logger logger;
-
-
+    @Tracing
+    @TracingLevel(level = "FINE")
     @Override
     public PartitionPlan mapPartitions() throws Exception {
         PartitionPlan partitionPlan = new PartitionPlanImpl();
@@ -37,7 +33,6 @@ public class FilePartitionMapper implements PartitionMapper {
         partitionPlan.setPartitions(files.size());
         partitionPlan.setPartitionProperties(createPartitionProperties(files));
 
-        logger.log(Level.INFO, "Partition plan: NumberOfPartitions={0}, NumberOfThreads={1}, NumberOfProperties={2}", new Object[]{partitionPlan.getPartitions(), partitionPlan.getThreads(), partitionPlan.getPartitionProperties().length});
         return partitionPlan;
     }
 

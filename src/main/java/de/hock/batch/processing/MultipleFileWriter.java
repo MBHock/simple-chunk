@@ -18,6 +18,7 @@ import java.util.logging.Logger;
  * @author <a href="mailto:Mojammal.Hock@gmail.com">Mojammal Hock</a>
  */
 @Tracing
+@TracingLevel
 @Named("MultipleFileWriter")
 public class MultipleFileWriter implements ItemWriter {
 

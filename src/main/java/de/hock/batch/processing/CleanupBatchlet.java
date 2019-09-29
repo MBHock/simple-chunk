@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 @Tracing
+@TracingLevel(level = "FINE")
 @Named(value = "CleanupBatchlet")
 public class CleanupBatchlet extends AbstractBatchlet {
 

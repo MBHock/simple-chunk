@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
  * @author <a href="mailto:Mojammal.Hock@gmail.com">Mojammal Hock</a>
  */
 @Tracing
+@TracingLevel
 @Named("SingleFileWriter")
 public class SingleFileWriter implements ItemWriter {
 
@@ -51,6 +52,7 @@ public class SingleFileWriter implements ItemWriter {
     /* (non-Javadoc)
      * @see javax.batch.api.chunk.ItemWriter#writeItems(java.util.List)
      */
+    @TracingLevel(level = "FINEST")
     @Override
     public void writeItems(List<Object> items) throws Exception {
         String lines = items.stream().map(String::valueOf).collect(Collectors.joining(System.lineSeparator()));

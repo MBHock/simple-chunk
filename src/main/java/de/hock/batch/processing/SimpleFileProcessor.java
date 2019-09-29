@@ -22,12 +22,12 @@ public class SimpleFileProcessor implements ItemProcessor {
     /* (non-Javadoc)
      * @see javax.batch.api.chunk.ItemProcessor#processItem(java.lang.Object)
      */
+    @TracingLevel(level = "FINEST")
     @Override
     public Object processItem(Object item) throws Exception {
         String response = null;
 
         String itemToBeProcesssed = (String) item;
-        logger.log(Level.FINER, "Processing item {0}.", itemToBeProcesssed);
 
         if(!Objects.equals(EMPTY_STRING, itemToBeProcesssed)) {
             response = itemToBeProcesssed;
