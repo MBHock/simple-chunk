@@ -16,7 +16,9 @@ Using command line argument:
 java -jar target/chunk-processing.jar chunk-example threadCount=5 outputFilename=sample-chunkout.txt
 
 To run in debug mode: (the debug mode must be configured as a remote debugger in your IDE)
-java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000 -jar target/chunk-processing.jar chunk-example threadCount=5 outputFilename=sample-chunkout.txt
+java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000 -jar target/chunk-processing.jar chunk-multi-writer threadCount=3 outputFilename=chunk-output.txt
+
+java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000 -jar target/chunk-processing.jar chunk-single-writer threadCount=3 outputFilename=chunk-single-output.txt
 
 *** Count all non empty lines:
 cat sampleoutput_* | grep '\S' | wc -l

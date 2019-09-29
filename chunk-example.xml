@@ -15,7 +15,7 @@
 				</properties>
 			</reader>
 			<processor ref="SimpleFileProcessor" />
-			<writer ref="SimpleFileWriter" />
+			<writer ref="SingleFileWriter" />
 		</chunk>
 		<partition>
 			<mapper ref="FilePartitionMapper" />

@@ -12,12 +12,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * @author <a href="mailto:Mojammal.Hock@gmail.com">Mojammal Hock</a>
  */
+@Tracing
 @Named("MultipleFileWriter")
 public class MultipleFileWriter implements ItemWriter {
 
@@ -36,9 +36,11 @@ public class MultipleFileWriter implements ItemWriter {
      */
     @Override
     public void open(Serializable checkpoint) throws Exception {
+        if(Files.notExists(Paths.get(jobProperties.getOutputDirectory()))) {
+            Files.createDirectories(Paths.get(jobProperties.getOutputDirectory()));
+        }
         path = Paths.get(jobProperties.getOutputDirectory(), createFilename());
         bufferedWriter = Files.newBufferedWriter(path);
-        logger.log(Level.INFO, "Opening the file {0} to write output.", path);
     }
 
     private String createFilename() {
@@ -55,8 +57,6 @@ public class MultipleFileWriter implements ItemWriter {
      */
     @Override
     public void close() throws Exception {
-        logger.log(Level.INFO, "Closing the file writer to file {0}", path);
-
         if(bufferedWriter != null) {
             bufferedWriter.close();
         }
@@ -67,7 +67,6 @@ public class MultipleFileWriter implements ItemWriter {
      */
     @Override
     public void writeItems(List<Object> items) throws Exception {
-        logger.log(Level.FINE, "{0} number of items will be written", items.size());
         items.stream().map(String::valueOf).forEach(this::writeItem);
     }
 

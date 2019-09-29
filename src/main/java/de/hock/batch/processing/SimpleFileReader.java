@@ -8,7 +8,6 @@ import java.io.BufferedReader;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static de.hock.batch.processing.JobProperties.PARTITION_FILENAME;
@@ -16,6 +15,7 @@ import static de.hock.batch.processing.JobProperties.PARTITION_FILENAME;
 /**
  * @author <a href="mailto:Mojammal.Hock@gmail.com">Mojammal Hock</a>
  */
+@Tracing
 @Named("SimpleFileReader")
 public class SimpleFileReader implements ItemReader {
 
@@ -33,7 +33,6 @@ public class SimpleFileReader implements ItemReader {
      */
     @Override
     public void open(Serializable checkpoint) throws Exception {
-        logger.log(Level.FINE, "Opening the file {0} to read ", fileName);
 //        reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(fileNmae))));
         bufferedReader = Files.newBufferedReader(Paths.get(fileName));
     }
@@ -43,7 +42,6 @@ public class SimpleFileReader implements ItemReader {
      */
     @Override
     public void close() throws Exception {
-        logger.log(Level.FINE, "Closing the file {0}", fileName);
         if(bufferedReader != null) {
             bufferedReader.close();
         }
@@ -55,7 +53,6 @@ public class SimpleFileReader implements ItemReader {
     @Override
     public Object readItem() throws Exception {
         String s = bufferedReader.readLine();
-        logger.log(Level.FINEST, "Item read {0}", s);
         return s;
     }
 

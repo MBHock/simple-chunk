@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<job id="batchletjob" xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+     version="1.0">
+    <properties>
+        <property name="inputDirectory" value="/Users/mojammalhock/tmp/out"/>
+        <property name="outputDirectory" value="/Users/mojammalhock/tmp/result"/>
+        <property name="loggingDirectory" value="/Users/mojammalhock/tmp/log"/>
+        <property name="outputFilename" value="chunk-output.txt"/>
+        <property name="threadCount" value="10"/>
+        <property name="filenamePattern" value="txt"/>
+    </properties>
+    <listeners>
+        <listener ref="InfoJobListener"/>
+    </listeners>
+    <step id="chunkReader" next="cleanup">
+        <chunk item-count="100">
+            <reader ref="SimpleFileReader">
+                <properties>
+                    <property name="fileName"
+                              value="#{partitionPlan['fileName']}"/>
+                </properties>
+            </reader>
+            <processor ref="SimpleFileProcessor"/>
+<!--            <writer ref="MultipleFileWriter"/>-->
+            <writer ref="SingleFileWriter"/>
+        </chunk>
+        <partition>
+            <mapper ref="FilePartitionMapper"/>
+        </partition>
+    </step>
+    <step id="cleanup" next="statistics">
+        <batchlet ref="CleanupBatchlet"/>
+    </step>
+    <step id="statistics">
+        <batchlet ref="StatisticsBatchlet"/>
+    </step>
+</job>

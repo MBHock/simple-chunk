@@ -10,10 +10,12 @@ import java.util.logging.Logger;
 /**
  * @author <a href="mailto:Mojammal.Hock@gmail.com">Mojammal Hock</a>
  */
+@Tracing
 @Named("SimpleFileProcessor")
 public class SimpleFileProcessor implements ItemProcessor {
 
     public static final String EMPTY_STRING = "";
+
     @Inject
     private Logger logger;
 

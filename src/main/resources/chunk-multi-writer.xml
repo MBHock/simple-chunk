@@ -3,7 +3,7 @@
      version="1.0">
     <properties>
         <property name="inputDirectory" value="/Users/mojammalhock/tmp/out"/>
-        <property name="outputDirectory" value="/Users/mojammalhock/tmp"/>
+        <property name="outputDirectory" value="/Users/mojammalhock/tmp/result"/>
         <property name="loggingDirectory" value="/Users/mojammalhock/tmp/log"/>
         <property name="outputFilename" value="chunk-output.txt"/>
         <property name="threadCount" value="10"/>
@@ -21,8 +21,7 @@
                 </properties>
             </reader>
             <processor ref="SimpleFileProcessor"/>
-<!--            <writer ref="MultipleFileWriter"/>-->
-            <writer ref="SingleFileWriter"/>
+            <writer ref="MultipleFileWriter"/>
         </chunk>
         <partition>
             <mapper ref="FilePartitionMapper"/>
