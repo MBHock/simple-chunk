@@ -1,9 +1,6 @@
 package de.hock.batch.processing;
 
-import org.jberet.creation.ArchiveXmlLoader;
-import org.jberet.job.model.Job;
 import org.jberet.runtime.JobExecutionImpl;
-import org.jberet.se.BatchSEEnvironment;
 import org.jberet.se._private.SEBatchLogger;
 import org.jberet.se._private.SEBatchMessages;
 
@@ -13,7 +10,6 @@ import javax.batch.runtime.BatchRuntime;
 import javax.batch.runtime.BatchStatus;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +30,7 @@ public class JobStarter {
 
         final String jobXML = readJobXmlFilename(args);
         if(jobXML != null) {
-            final Properties jobParameters = readPropertiesFromJobXml(jobXML);
+            final Properties jobParameters = new Properties();
 
             if(addValidArgumentToProps(args, jobParameters)) {
                 startJob(jobXML, BatchRuntime.getJobOperator(), jobParameters);
@@ -76,14 +72,6 @@ public class JobStarter {
             jobParameters.setProperty(key, val);
         }
         return true;
-    }
-
-    private static Properties readPropertiesFromJobXml(String jobXML) {
-        BatchSEEnvironment batchEnvironment = new BatchSEEnvironment();
-        final Job jobDefined = ArchiveXmlLoader.loadJobXml(jobXML, batchEnvironment.getClassLoader(),
-                new ArrayList<Job>(), batchEnvironment.getJobXmlResolver());
-
-        return org.jberet.job.model.Properties.toJavaUtilProperties(jobDefined.getProperties());
     }
 
     private static String readJobXmlFilename(String[] args) {
