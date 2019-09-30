@@ -10,7 +10,7 @@
         <property name="filenamePattern" value="txt"/>
     </properties>
     <listeners>
-        <listener ref="InfoJobListener"/>
+        <listener ref="jobListenerImpl"/>
     </listeners>
     <step id="chunkReader" next="cleanup">
         <chunk item-count="100">
@@ -21,7 +21,7 @@
                 </properties>
             </reader>
             <processor ref="SimpleFileProcessor"/>
-<!--            <writer ref="MultipleFileWriter"/>-->
+            <!--            <writer ref="MultipleFileWriter"/>-->
             <writer ref="SingleFileWriter"/>
         </chunk>
         <partition>

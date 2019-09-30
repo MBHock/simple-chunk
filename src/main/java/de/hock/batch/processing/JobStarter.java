@@ -10,9 +10,6 @@ import javax.batch.runtime.BatchRuntime;
 import javax.batch.runtime.BatchStatus;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +30,6 @@ public class JobStarter {
             LogManager logManager = LogManager.getLogManager();
             logManager.reset();
             logManager.readConfiguration(getResourceAsStream(LOGGING_PROPERTIES));
-//            System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tF %1$tT] [%4$-7s] %5$s %n");
         }
         catch(IOException e) {
             Logger.getAnonymousLogger().log(Level.SEVERE, "Error while reading logging property from {0}", LOGGING_PROPERTIES);
@@ -46,21 +42,12 @@ public class JobStarter {
      * @throws InterruptedException
      */
     public static void main(final String[] args) throws BatchRuntimeException {
-        logger.log(Level.INFO, Arrays.deepToString(args));
-
-        Instant jobStart = Instant.now();
 
         final String jobXML = readJobXmlFilename(args);
-        if(jobXML != null) {
-            final Properties jobParameters = new Properties();
-
-            if(addValidArgumentToProps(args, jobParameters)) {
-                startJob(jobXML, BatchRuntime.getJobOperator(), jobParameters);
-            }
+        final Properties jobParameters = new Properties();
+        if(addValidArgumentToProps(args, jobParameters)) {
+            startJob(jobXML, BatchRuntime.getJobOperator(), jobParameters);
         }
-
-        Duration between = Duration.between(jobStart, Instant.now());
-        logger.log(Level.INFO, () -> (String.format("Total job execution time: %s", between)));
     }
 
 
@@ -96,23 +83,20 @@ public class JobStarter {
             }
             final String key = args[i].substring(0, equalSignPos).trim();
             final String val = args[i].substring(equalSignPos + 1).trim();
-            logger.log(Level.INFO, () -> (String.format("prop: '%s' -> '%s'", key, val)));
+            logger.log(Level.INFO, "Commandline arg: {0} = {1}", new Object[]{key, val});
             jobParameters.setProperty(key, val);
         }
         return true;
     }
 
     private static String readJobXmlFilename(String[] args) {
+        logger.log(Level.INFO, "Job filename is: {0}", args[0]);
 
-        String jobXmlFilename = null;
         if(args.length == 0 || args[0] == null || args[0].isEmpty()) {
             usage(args);
         }
-        else {
-            jobXmlFilename = args[0];
-        }
 
-        return jobXmlFilename;
+        return args[0];
     }
 
     private static void usage(final String[] args) {
