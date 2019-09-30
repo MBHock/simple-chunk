@@ -1,13 +1,9 @@
 package de.hock.batch.processing;
 
-import javax.annotation.PostConstruct;
 import javax.batch.api.BatchProperty;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Objects;
-import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
@@ -18,31 +14,18 @@ import static de.hock.batch.processing.JobProperties.LOGGING_DIRECTORY;
  */
 public class LoggerProducer {
 
-    public static final String LOGGING_PROPERTIES = "logging.properties";
-
     @BatchProperty(name = LOGGING_DIRECTORY)
     private String logDirecotry;
 
-    @PostConstruct
-    void initializeLoggingConfiguration() {
-        try {
-            LogManager.getLogManager().readConfiguration(getResourceAsStream(LOGGING_PROPERTIES));
-        }
-        catch(IOException e) {
-            Logger.getAnonymousLogger().log(Level.SEVERE, "Error while reading logging property from {0}", LOGGING_PROPERTIES);
-            throw new RuntimeException(e);
-        }
-    }
-
-    private InputStream getResourceAsStream(String propertyFileName) {
-        InputStream is = LoggerProducer.class.getClassLoader().getResourceAsStream(propertyFileName);
-        Objects.requireNonNull(is, () -> String.format("The property file %s expected in the %s directory, but is missing", propertyFileName, "src/main/resources"));
-        return is;
-    }
-
     @Produces
     public Logger produceLogger(InjectionPoint injectionPoint) {
-        return Logger.getLogger(injectionPoint.getMember().getDeclaringClass().getName());
+        Logger logger = LogManager.getLogManager().getLogger(injectionPoint.getMember().getDeclaringClass().getName());
+        if(Objects.isNull(logger)) {
+            logger = Logger.getLogger(injectionPoint.getMember().getDeclaringClass().getName());
+            LogManager.getLogManager().addLogger(logger);
+        }
+
+        return logger;
     }
 
 }

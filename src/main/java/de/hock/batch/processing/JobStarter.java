@@ -8,23 +8,45 @@ import javax.batch.operations.BatchRuntimeException;
 import javax.batch.operations.JobOperator;
 import javax.batch.runtime.BatchRuntime;
 import javax.batch.runtime.BatchStatus;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 /**
  * @author <a href="mailto:Mojammal.Hock@gmail.com">Mojammal Hock</a>
  */
 public class JobStarter {
 
+    private static final Logger logger = Logger.getLogger(JobStarter.class.getSimpleName());
+    public static final String LOGGING_PROPERTIES = "logging.properties";
+
+    static {
+        try {
+            LogManager logManager = LogManager.getLogManager();
+            logManager.reset();
+            logManager.readConfiguration(getResourceAsStream(LOGGING_PROPERTIES));
+//            System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tF %1$tT] [%4$-7s] %5$s %n");
+        }
+        catch(IOException e) {
+            Logger.getAnonymousLogger().log(Level.SEVERE, "Error while reading logging property from {0}", LOGGING_PROPERTIES);
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * @param args
      * @throws InterruptedException
      */
     public static void main(final String[] args) throws BatchRuntimeException {
-        System.out.println(Arrays.deepToString(args));
+        logger.log(Level.INFO, Arrays.deepToString(args));
 
         Instant jobStart = Instant.now();
 
@@ -38,8 +60,14 @@ public class JobStarter {
         }
 
         Duration between = Duration.between(jobStart, Instant.now());
-        System.out.println(String.format("Total job execution time: %s", between));
-        // System.out.println(String.format("Total job execution time: %d:%d:%d.%d", between.get(ChronoUnit.HOURS), between.get(ChronoUnit.MINUTES), between.getSeconds(), between.get(ChronoUnit.MILLIS)));
+        logger.log(Level.INFO, () -> (String.format("Total job execution time: %s", between)));
+    }
+
+
+    private static InputStream getResourceAsStream(String propertyFileName) {
+        InputStream is = LoggerProducer.class.getClassLoader().getResourceAsStream(propertyFileName);
+        Objects.requireNonNull(is, () -> String.format("The property file %s expected in the %s directory, but is missing", propertyFileName, "src/main/resources"));
+        return is;
     }
 
     private static void startJob(String jobXML, JobOperator jobOperator, Properties jobParameters) {
@@ -68,7 +96,7 @@ public class JobStarter {
             }
             final String key = args[i].substring(0, equalSignPos).trim();
             final String val = args[i].substring(equalSignPos + 1).trim();
-            System.out.println(String.format("prop: '%s' -> '%s'", key, val));
+            logger.log(Level.INFO, () -> (String.format("prop: '%s' -> '%s'", key, val)));
             jobParameters.setProperty(key, val);
         }
         return true;
