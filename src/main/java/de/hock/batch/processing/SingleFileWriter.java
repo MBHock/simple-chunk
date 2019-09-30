@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 /**
  * @author <a href="mailto:Mojammal.Hock@gmail.com">Mojammal Hock</a>
  */
-@Tracing
-@TracingLevel
 @Named("SingleFileWriter")
 public class SingleFileWriter implements ItemWriter {
 
@@ -31,6 +29,7 @@ public class SingleFileWriter implements ItemWriter {
     /* (non-Javadoc)
      * @see javax.batch.api.chunk.ItemWriter#open(java.io.Serializable)
      */
+    @Tracing(LogLevel.FINE)
     @Override
     public void open(Serializable checkpoint) throws Exception {
         if(Files.notExists(Paths.get(jobProperties.getOutputDirectory()))) {
@@ -44,6 +43,7 @@ public class SingleFileWriter implements ItemWriter {
     /* (non-Javadoc)
      * @see javax.batch.api.chunk.ItemWriter#close()
      */
+    @Tracing(LogLevel.FINE)
     @Override
     public void close() throws Exception {
 //        do nothing
@@ -52,7 +52,7 @@ public class SingleFileWriter implements ItemWriter {
     /* (non-Javadoc)
      * @see javax.batch.api.chunk.ItemWriter#writeItems(java.util.List)
      */
-    @TracingLevel(level = "FINEST")
+    @Tracing(LogLevel.FINEST)
     @Override
     public void writeItems(List<Object> items) throws Exception {
         String lines = items.stream().map(String::valueOf).collect(Collectors.joining(System.lineSeparator()));

@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Tracing
-@TracingLevel(level = "FINE")
 @Named(value = "StatisticsBatchlet")
 public class StatisticsBatchlet extends AbstractBatchlet {
 
@@ -31,4 +30,5 @@ public class StatisticsBatchlet extends AbstractBatchlet {
         logger.log(Level.INFO, "\n*** Statistics *** \n{0}\n******", Stream.of(metrics).collect(Collectors.mapping(mapper, Collectors.joining(System.lineSeparator()))));
         return BatchStatus.COMPLETED.name();
     }
+
 }

@@ -17,8 +17,6 @@ import java.util.logging.Logger;
 /**
  * @author <a href="mailto:Mojammal.Hock@gmail.com">Mojammal Hock</a>
  */
-@Tracing
-@TracingLevel
 @Named("MultipleFileWriter")
 public class MultipleFileWriter implements ItemWriter {
 
@@ -35,6 +33,7 @@ public class MultipleFileWriter implements ItemWriter {
     /* (non-Javadoc)
      * @see javax.batch.api.chunk.ItemWriter#open(java.io.Serializable)
      */
+    @Tracing(LogLevel.FINE)
     @Override
     public void open(Serializable checkpoint) throws Exception {
         if(Files.notExists(Paths.get(jobProperties.getOutputDirectory()))) {
@@ -56,6 +55,7 @@ public class MultipleFileWriter implements ItemWriter {
     /* (non-Javadoc)
      * @see javax.batch.api.chunk.ItemWriter#close()
      */
+    @Tracing(LogLevel.FINE)
     @Override
     public void close() throws Exception {
         if(bufferedWriter != null) {
@@ -66,6 +66,7 @@ public class MultipleFileWriter implements ItemWriter {
     /* (non-Javadoc)
      * @see javax.batch.api.chunk.ItemWriter#writeItems(java.util.List)
      */
+    @Tracing(LogLevel.FINEST)
     @Override
     public void writeItems(List<Object> items) throws Exception {
         items.stream().map(String::valueOf).forEach(this::writeItem);

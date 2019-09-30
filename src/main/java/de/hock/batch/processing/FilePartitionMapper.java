@@ -16,14 +16,13 @@ import java.util.stream.Collectors;
 
 import static de.hock.batch.processing.JobProperties.PARTITION_FILENAME;
 
+@Tracing(LogLevel.INFO)
 @Named("FilePartitionMapper")
 public class FilePartitionMapper implements PartitionMapper {
 
     @Inject
     private JobProperties jobProperties;
 
-    @Tracing
-    @TracingLevel(level = "FINE")
     @Override
     public PartitionPlan mapPartitions() throws Exception {
         PartitionPlan partitionPlan = new PartitionPlanImpl();

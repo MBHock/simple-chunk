@@ -15,4 +15,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({METHOD, TYPE})
 public @interface Tracing {
 
+    LogLevel value() default LogLevel.FINE;
+
 }
