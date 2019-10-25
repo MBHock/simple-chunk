@@ -10,7 +10,7 @@
         <property name="filenamePattern" value="txt"/>
     </properties>
     <listeners>
-        <listener ref="jobListenerImpl"/>
+        <listener ref="InfoJobListener"/>
     </listeners>
     <step id="chunkReader" next="cleanup">
         <chunk item-count="100">
