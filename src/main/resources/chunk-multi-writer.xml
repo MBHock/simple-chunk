@@ -2,9 +2,9 @@
 <job id="batchletjob" xmlns="http://xmlns.jcp.org/xml/ns/javaee"
      version="1.0">
     <properties>
-        <property name="inputDirectory" value="/Users/mojammalhock/tmp/out"/>
-        <property name="outputDirectory" value="/Users/mojammalhock/tmp/result"/>
-        <property name="loggingDirectory" value="/Users/mojammalhock/tmp/log"/>
+        <property name="inputDirectory" value="/home/javabatch/result/in"/>
+        <property name="outputDirectory" value="/home/javabatch/result/out"/>
+        <property name="loggingDirectory" value="/home/javabatch/result/log"/>
         <property name="outputFilename" value="chunk-output.txt"/>
         <property name="threadCount" value="10"/>
         <property name="filenamePattern" value="txt"/>

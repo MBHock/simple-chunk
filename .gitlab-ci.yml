@@ -1,0 +1,54 @@
+image: docker:latest
+services:
+  - docker:dind
+
+variables:
+  DOCKER_DRIVER: overlay2
+  GIT_SSL_NO_VERIFY: "true"
+  MAVEN_OPTS: "-Xms512m -Xmx512m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+TieredCompilation -XX:TieredStopAtLevel=1 -Dmaven.repo.local=.m2"
+  MAVEN_CLI_OPTS: "--batch-mode --fail-at-end"
+
+# Cache downloaded dependencies and plugins between builds.
+# To keep cache across branches add 'key: "$CI_JOB_NAME"'
+cache:
+  paths:
+    - .m2
+
+stages:
+  - build
+  - package
+  - deploy
+
+jar-build:
+  image: registry.gitlab.com/mohock/mvn-docker-img:latest
+  stage: build
+  script:
+    - mvn clean install $MAVEN_CLI_OPTS
+  artifacts:
+    paths:
+      - target/batchProcessing.jar
+      - target/lib
+
+manual-build:
+  image: registry.gitlab.com/gp-info/gpi-mvn-image:latest-dev
+  stage: build
+  when: manual
+  script:
+    - mvn clean install $MAVEN_CLI_OPTS
+  artifacts:
+    paths:
+      - target/chunkProcessing.jar
+      - target/lib
+
+docker-build:
+  stage: package
+  only:
+    - master
+  dependencies:
+    - jar-build
+  script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_PIPELINE_IID .
+    - docker push $CI_REGISTRY_IMAGE:$CI_PIPELINE_IID
+    - docker tag $CI_REGISTRY_IMAGE:$CI_PIPELINE_IID $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:latest

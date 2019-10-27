@@ -89,7 +89,7 @@
     </dependencies>
 
     <build>
-        <finalName>chunk-processing</finalName>
+        <finalName>chunkProcessing</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
